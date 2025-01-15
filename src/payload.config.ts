@@ -1,10 +1,15 @@
 // storage-adapter-import-placeholder
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { gcsStorage } from '@payloadcms/storage-gcs'
 
 import sharp from 'sharp' // sharp-import
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
+
+// Get the current directory from import.meta.url
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
@@ -68,6 +73,17 @@ export default buildConfig({
   plugins: [
     ...plugins,
     // storage-adapter-placeholder
+    gcsStorage({
+      collections: {
+        media: true,
+      },
+      bucket: process.env.GCS_BUCKET!,
+      options: {
+        apiEndpoint: process.env.GCS_ENDPOINT,
+        projectId: process.env.GCS_PROJECT_ID,
+        keyFilename: path.resolve(__dirname, './chadlearners.json'),
+      },
+    }),
   ],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
